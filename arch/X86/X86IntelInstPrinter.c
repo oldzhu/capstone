@@ -17,7 +17,7 @@
 
 #ifdef CAPSTONE_HAS_X86
 
-#if defined (WIN32) || defined (WIN64) || defined (_WIN32) || defined (_WIN64)
+#ifdef _MSC_VER
 #pragma warning(disable:4996)			// disable MSVC's warning on strncpy()
 #pragma warning(disable:28719)		// disable MSVC's warning on strncpy()
 #endif
@@ -1035,6 +1035,7 @@ static void printanymem(MCInst *MI, unsigned OpNo, SStream *O)
 		case X86_LEA64r:
 				 MI->x86opsize = 8;
 				 break;
+#ifndef CAPSTONE_X86_REDUCE
 		case X86_BNDCL32rm:
 		case X86_BNDCN32rm:
 		case X86_BNDCU32rm:
@@ -1045,6 +1046,7 @@ static void printanymem(MCInst *MI, unsigned OpNo, SStream *O)
 		case X86_BNDCU64rm:
 				 MI->x86opsize = 16;
 				 break;
+#endif
 	}
 
 	printMemReference(MI, OpNo, O);

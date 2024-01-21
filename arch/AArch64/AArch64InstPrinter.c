@@ -54,10 +54,12 @@
 
 #define DEBUG_TYPE "asm-printer"
 
+#ifndef CAPSTONE_DIET
 static void printCustomAliasOperand(
          MCInst *MI, uint64_t Address, unsigned OpIdx,
          unsigned PrintMethodIdx,
          SStream *OS);
+#endif
 
 #define DECLARE_printComplexRotationOp(Angle, Remainder) \
 	static void CONCAT(printComplexRotationOp, CONCAT(Angle, Remainder))( \
@@ -1312,7 +1314,7 @@ DEFINE_printMatrix(0);
 		const char *RegName = getRegisterName(MCOperand_getReg(RegOp), AArch64_NoRegAltName); \
 \
 		unsigned buf_len = strlen(RegName) + 1; \
-		char *Base = calloc(1, buf_len); \
+		char *Base = cs_mem_calloc(1, buf_len); \
 		memcpy(Base, RegName, buf_len); \
 		char *Dot = strchr(Base, '.'); \
 		if (!Dot) { \
@@ -1324,7 +1326,7 @@ DEFINE_printMatrix(0);
 		SStream_concat(O, "%s%s", Base, (IsVertical ? "v" : "h")); \
 		SStream_concat1(O, '.'); \
 		SStream_concat0(O, Suffix); \
-		free(Base); \
+		cs_mem_free(Base); \
 	}
 DEFINE_printMatrixTileVector(0);
 DEFINE_printMatrixTileVector(1);
