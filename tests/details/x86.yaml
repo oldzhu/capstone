@@ -6303,3 +6303,133 @@ test_cases:
             opcode: [ 0xff, 0x00, 0x00, 0x00 ]
           regs_read: [ rax ]
           regs_write: [ rip ]
+
+  -
+    input:
+      name: "System call instructions, 16-bit decode"
+      bytes: [
+         0x0f, 0x34,            # sysenter
+         0x0f, 0x35,            # sysexit
+      ]
+      arch: "x86"
+      options: [ CS_OPT_DETAIL, CS_MODE_16 ]
+    expected:
+      insns:
+      -
+        asm_text: "sysenter"
+        details:
+          x86:
+            prefix: [ X86_PREFIX_0, X86_PREFIX_0, X86_PREFIX_0, X86_PREFIX_0 ]
+            opcode: [ 0x0f, 0x34, 0x00, 0x00 ]
+            eflags: [ X86_EFLAGS_MODIFY_IF ]
+          regs_read: [ ]
+          regs_write: [ ip, sp, flags ]
+      -
+        asm_text: "sysexit"
+        details:
+          x86:
+            prefix: [ X86_PREFIX_0, X86_PREFIX_0, X86_PREFIX_0, X86_PREFIX_0 ]
+            opcode: [ 0x0f, 0x35, 0x00, 0x00 ]
+            eflags: [ ]
+          regs_read: [ cx, dx ]
+          regs_write: [ ip, sp ]
+
+  -
+    input:
+      name: "System call instructions, 32-bit decode"
+      bytes: [
+         0x0f, 0x34,            # sysenter
+         0x0f, 0x35,            # sysexit
+      ]
+      arch: "x86"
+      options: [ CS_OPT_DETAIL, CS_MODE_32 ]
+    expected:
+      insns:
+      -
+        asm_text: "sysenter"
+        details:
+          x86:
+            prefix: [ X86_PREFIX_0, X86_PREFIX_0, X86_PREFIX_0, X86_PREFIX_0 ]
+            opcode: [ 0x0f, 0x34, 0x00, 0x00 ]
+            eflags: [ X86_EFLAGS_MODIFY_IF ]
+          regs_read: [ ]
+          regs_write: [ eip, esp, eflags ]
+      -
+        asm_text: "sysexit"
+        details:
+          x86:
+            prefix: [ X86_PREFIX_0, X86_PREFIX_0, X86_PREFIX_0, X86_PREFIX_0 ]
+            opcode: [ 0x0f, 0x35, 0x00, 0x00 ]
+            eflags: [ ]
+          regs_read: [ ecx, edx ]
+          regs_write: [ eip, esp ]
+
+  -
+    input:
+      name: "System call instructions, 64-bit decode"
+      bytes: [
+         0x0f, 0x05,            # syscall
+         0x0f, 0x34,            # sysenter
+         0x0f, 0x35,            # sysexit
+         0x40, 0x0f, 0x35,      # REX.W sysexit
+         0x0f, 0x07,            # sysret
+         0x40, 0x0f, 0x07,      # REX.W sysret
+      ]
+      arch: "x86"
+      options: [ CS_OPT_DETAIL, CS_MODE_64 ]
+    expected:
+      insns:
+      -
+        asm_text: "syscall"
+        details:
+          x86:
+            prefix: [ X86_PREFIX_0, X86_PREFIX_0, X86_PREFIX_0, X86_PREFIX_0 ]
+            opcode: [ 0x0f, 0x05, 0x00, 0x00 ]
+            eflags: [ X86_EFLAGS_MODIFY_AF, X86_EFLAGS_MODIFY_CF, X86_EFLAGS_MODIFY_SF, X86_EFLAGS_MODIFY_ZF, X86_EFLAGS_MODIFY_PF, X86_EFLAGS_MODIFY_OF, X86_EFLAGS_MODIFY_TF, X86_EFLAGS_MODIFY_IF, X86_EFLAGS_MODIFY_DF, X86_EFLAGS_MODIFY_NT, X86_EFLAGS_MODIFY_RF ] # should write all flags
+          regs_read: [ ]
+          regs_write: [ rip, rcx, r11, rflags ]
+      -
+        asm_text: "sysenter"
+        details:
+          x86:
+            prefix: [ X86_PREFIX_0, X86_PREFIX_0, X86_PREFIX_0, X86_PREFIX_0 ]
+            opcode: [ 0x0f, 0x34, 0x00, 0x00 ]
+            eflags: [ X86_EFLAGS_MODIFY_IF ]
+          regs_read: [ ]
+          regs_write: [ rip, rsp, rflags ]
+      -
+        asm_text: "sysexit"
+        details:
+          x86:
+            prefix: [ X86_PREFIX_0, X86_PREFIX_0, X86_PREFIX_0, X86_PREFIX_0 ]
+            opcode: [ 0x0f, 0x35, 0x00, 0x00 ]
+            eflags: [ ]
+          regs_read: [ rcx, rdx ]
+          regs_write: [ rip, rsp ]
+      -
+        asm_text: "sysexit"
+        details:
+          x86:
+            prefix: [ X86_PREFIX_0, X86_PREFIX_0, X86_PREFIX_0, X86_PREFIX_0 ]
+            opcode: [ 0x0f, 0x35, 0x00, 0x00 ]
+            eflags: [ ]
+          regs_read: [ rcx, rdx ]
+          regs_write: [ rip, rsp ]
+      -
+        asm_text: "sysret"
+        details:
+          x86:
+            prefix: [ X86_PREFIX_0, X86_PREFIX_0, X86_PREFIX_0, X86_PREFIX_0 ]
+            opcode: [ 0x0f, 0x07, 0x00, 0x00 ]
+            eflags: [ X86_EFLAGS_MODIFY_AF, X86_EFLAGS_MODIFY_CF, X86_EFLAGS_MODIFY_SF, X86_EFLAGS_MODIFY_ZF, X86_EFLAGS_MODIFY_PF, X86_EFLAGS_MODIFY_OF, X86_EFLAGS_MODIFY_TF, X86_EFLAGS_MODIFY_IF, X86_EFLAGS_MODIFY_DF, X86_EFLAGS_MODIFY_NT, X86_EFLAGS_MODIFY_RF ]
+          regs_read: [ rcx, r11 ]
+          regs_write: [ rip, rflags ]
+      -
+        asm_text: "sysret"
+        details:
+          x86:
+            prefix: [ X86_PREFIX_0, X86_PREFIX_0, X86_PREFIX_0, X86_PREFIX_0 ]
+            opcode: [ 0x0f, 0x07, 0x00, 0x00 ]
+            eflags: [ X86_EFLAGS_MODIFY_AF, X86_EFLAGS_MODIFY_CF, X86_EFLAGS_MODIFY_SF, X86_EFLAGS_MODIFY_ZF, X86_EFLAGS_MODIFY_PF, X86_EFLAGS_MODIFY_OF, X86_EFLAGS_MODIFY_TF, X86_EFLAGS_MODIFY_IF, X86_EFLAGS_MODIFY_DF, X86_EFLAGS_MODIFY_NT, X86_EFLAGS_MODIFY_RF ]
+          regs_read: [ rcx, r11 ]
+          regs_write: [ rip, rflags ]
